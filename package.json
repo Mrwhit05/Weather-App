@@ -1,0 +1,23 @@
+{
+  "name": "weather-app",
+  "version": "1.0.0",
+  "main": "script.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mrwhit05/Weather-App.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Mrwhit05/Weather-App/issues"
+  },
+  "homepage": "https://github.com/Mrwhit05/Weather-App#readme",
+  "description": "",
+  "devDependencies": {
+    "electron": "^37.2.0"
+  }
+}
