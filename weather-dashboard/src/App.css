@@ -15,6 +15,54 @@
   flex-shrink: 0;
 }
 
+
+
+.compass-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.compass {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border: 2px solid #ccc;
+  border-radius: 50%;
+}
+
+/* Cardinal directions */
+.compass::before {
+  content: "N";
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: bold;
+}
+
+.compass::after {
+  content: "S";
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: bold;
+}
+
+/* Add E/W manually if you want cleaner control */
+
+.needle {
+  position: absolute;
+  width: 2px;
+  height: 50%;
+  background: red;
+  
+  left: 50%;
+  transform-origin: bottom center;
+  transform: rotate(0deg);
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
