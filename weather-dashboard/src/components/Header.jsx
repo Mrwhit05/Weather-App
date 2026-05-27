@@ -6,7 +6,7 @@ function Header({ weather }) {
   return (
     <div className="headerText">
           <h2>{weather.name}</h2>
-          {weather && <WeatherCard weather={weather} />}
+          {weather && <WeatherCard weather={weather} className="bg-gray-700 rounded-2xl p-6 text-lg min-w-[200px]"/>}
           <p>Condition: {weather.weather[0].description}</p>
           <p>Feels Like: {weather.main.feels_like}°F </p>
           <p>Min: {weather.main.temp_min} Max: {weather.main.temp_max}</p>

@@ -1,4 +1,4 @@
-function WeatherCard({ weather }) {
+function WeatherCard({ weather, className = "" }) {
     if (!weather) return null;
 
     const date = new Date(weather.dt * 1000);
@@ -8,7 +8,7 @@ function WeatherCard({ weather }) {
 
 
     return (
-        <div className="weather-card">
+        <div className={`flex flex-col items-center text-center bg-gray-500 text-white border border-gray-500 p-3 min-w-[100px] shrink-0 ${className}`}>
             <p className="time">{time}</p>
             <img src={iconUrl} alt="weather icon"></img>
             <p className="temp">{Math.round(weather.main.temp)}°F</p>            

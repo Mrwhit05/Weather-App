@@ -114,62 +114,118 @@ function App() {
   };
 
   return (
-    <div>
-      <h1>Weather Insight Dashboard</h1>
-      <SearchBar onSearch={handleSearch}/>  
-      <div className="header">
-        {weather && <Header weather={weather} />}
-        <Alerts weather={weather} hourlyData={hourlyData}></Alerts>
-      </div>
+    <div className="app">
+      <aside className="sidebar">
+        {weather && <div>
+          <p className="block px-4 py-2 hover:rounded-lg hover:bg-gray-100 transition-colors duration-150"><a href="#overview">Overview</a></p>
+          <p className="block px-4 py-2 hover:rounded-lg hover:bg-gray-100 transition-colors duration-150"><a href="#forecast">Forecast</a></p>
+          <p className="block px-4 py-2 hover:rounded-lg hover:bg-gray-100 transition-colors duration-150"><a href="#trends">Trends</a></p>
+        </div>}
+      </aside>
 
-      <div className="hourly-carousel">
-        {Array.isArray(hourlyData) && hourlyData.slice(0, 12).map((hour, index) => {
-          const elements = [];
-          const hourTime = hour.dt;
+      <div className="main space-y-6">
+        <div className="topBar bg-gray-100 flex justify-between items-center px-6 py-4 shadow">
+          <h1>Weather Insight Dashboard</h1>
+          <SearchBar onSearch={handleSearch}/>  
+        </div>
 
-          if (!sunriseAdded && nextSunrise && Math.abs(hourTime - nextSunrise) < 7200) {
-            elements.push(
-            <div key={`sunrise-${index}`} className="sun-card">
-              <img src="https://openweathermap.org/img/wn/01d@2x.png" alt="weather icon"></img>
-              <p>Sunrise</p>
+        <section id="overview"></section>
+        {weather && <div className="grid grid-cols-2 gap-4">
+          <div className="bg-white p-4 rounded-xl shadow">
+            {weather && <Header weather={weather} />}
+          </div>
+
+          <div className="alertsCenter">
+            <div className="bg-white p-4 rounded-xl shadow">
+              <Alerts weather={weather} hourlyData={hourlyData}></Alerts>
             </div>
-            );
-            sunriseAdded = true;
-          }
-
-          elements.push(<WeatherCard key={index} weather={hour} />);
-
-          if (!sunsetAdded && nextSunset && Math.abs(hourTime - nextSunset) < 7200) {
-            elements.push(
-            <div key={`sunset-${index}`} className="sun-card">
-              <img src="https://openweathermap.org/img/wn/01n@2x.png" alt="weather icon"></img>
-              <p>Sunset</p>
+            <div>
+              <WindCompass data={hourlyData}></WindCompass>
+              
             </div>
-            );
-            sunsetAdded = true;
-          }
+          </div>
+        </div>}
 
-          return elements;
-        })}
-      </div>
-      <div className="daily-forecast">
-        {dailyData.sort((a, b) => new Date(a.date) - new Date(b.date))
-        .slice(1, 5).map((day, index) => (
-          <DayCard key={index} day={day} />
-        ))}
-      </div>
+        <section id="forecast"></section>
+        {weather && <p>3-Hour Forecast</p>}
+        <div className="hourly-carousel">
+          {Array.isArray(hourlyData) && hourlyData.slice(0, 12).map((hour, index) => {
+            const elements = [];
+            const hourTime = hour.dt;
 
-      <div className="graphs">
-        <TemperatureChart data={hourlyData} type="hourly" />
-        <TemperatureChart data={dailyData} type="daily" />
-        <RainChart data={hourlyData} type="hourly"/>
-        <RainChart data={dailyData} type="daily"/>
-        <HumidityChart data={hourlyData} type="hourly" />
-        <HumidityChart data={dailyData} type="daily" />
-      </div>
+            const sunriseDate = new Date(nextSunrise);
+            const sunriseString = sunriseDate.toLocaleTimeString([], {
+              hour: 'numeric',
+              minute: '2-digit',
+            });
 
-      <div className="insight-panel">
-        <WindCompass data={hourlyData}></WindCompass>
+            const sunsetDate = new Date(nextSunset);
+            const sunsetString = sunsetDate.toLocaleTimeString([], {
+              hour: 'numeric',
+              minute: '2-digit',
+            });
+
+            if (!sunriseAdded && nextSunrise && Math.abs(hourTime - nextSunrise) < 7200) {
+              elements.push(
+              <div key={`sunrise-${index}`} className="sun-card weather-card flex flex-col items-center text-center bg-gray-500 text-white border border-gray-500 p-3 min-w-[100px] shrink-0">
+                <p>{sunriseString}</p>
+                <img src="https://openweathermap.org/img/wn/01d@2x.png" alt="weather icon"></img>
+                <p>Sunrise</p>
+              </div>
+              );
+              sunriseAdded = true;
+            }
+
+            elements.push(<WeatherCard key={index} weather={hour} />);
+
+            if (!sunsetAdded && nextSunset && Math.abs(hourTime - nextSunset) < 7200) {
+              elements.push(
+              <div key={`sunset-${index}`} className="sun-card weather-card flex flex-col items-center text-center bg-gray-500 text-white border border-gray-500 p-3 min-w-[100px] shrink-0">
+                <p>{sunsetString}</p>
+                <img src="https://openweathermap.org/img/wn/01n@2x.png" alt="weather icon"></img>
+                <p>Sunset</p>
+              </div>
+              );
+              sunsetAdded = true;
+            }
+
+            return elements;
+          })}
+        </div>
+
+        {weather && <p>5-Day Forecast</p>}
+        {weather && <div className="bg-white p-4 rounded-xl shadow divide-y">
+          {dailyData.sort((a, b) => new Date(a.date) - new Date(b.date))
+          .slice(0, 5).map((day, index) => (
+            <DayCard key={index} day={day} />
+          ))}
+        </div>}
+
+        <section id="trends"></section>
+        {weather && <p>Trends</p>}
+        {hourlyData.length > 0 && (<div className="grid grid-cols-2 gap-4">
+            <div className="bg-white p-4 rounded-xl shadow">
+              <TemperatureChart data={hourlyData} type="hourly" />
+            </div>
+            <div className="bg-white p-4 rounded-xl shadow">
+              <TemperatureChart data={dailyData} type="daily" />
+            </div>
+
+            <div className="bg-white p-4 rounded-xl shadow">
+              <RainChart data={hourlyData} type="hourly"/>
+            </div>
+            <div className="bg-white p-4 rounded-xl shadow">
+              <RainChart data={dailyData} type="daily"/>
+            </div>
+
+            <div className="bg-white p-4 rounded-xl shadow">
+              <HumidityChart data={hourlyData} type="hourly" />
+            </div>
+            <div className="bg-white p-4 rounded-xl shadow">
+              <HumidityChart data={dailyData} type="daily" />
+            </div>
+
+        </div>)}
       </div>
     </div>
   );

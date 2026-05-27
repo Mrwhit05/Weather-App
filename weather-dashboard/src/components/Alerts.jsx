@@ -1,28 +1,34 @@
 function Alerts({ weather, hourlyData }) {
     if (!weather) return null;
     
+    let alertsGenerated = false;
+    let isRainExpected = false;
     let isSunny = false;
     let isFoggy = false;
     let isWindy = false;
 
-    const isRainExpected = hourlyData?.some(
-        hour => hour.pop > 0.5
-    );
+    //const isHeavyRain = hourlyData?.some(
+    //    hour => hour.rain?.["3h"] > 5
+    //);
 
-    const isHeavyRain = hourlyData?.some(
-        hour => hour.rain?.["3h"] > 5
-    );
+    if (hourlyData.some(hour => hour.pop > 0.5)) {
+      isRainExpected = true;
+      alertsGenerated = true;
+    }
 
     if (weather.clouds < 20) {
         isSunny = true;
+        alertsGenerated = true;
     }
 
-    if (weather.visibility < 7000) {
+    if (weather.visibility < 2000) {
         isFoggy = true;
+        alertsGenerated = true;
     }
 
     if (weather.wind.speed > 30) {
         isWindy = true;
+        alertsGenerated = true;
     }
 
   return (
@@ -39,6 +45,9 @@ function Alerts({ weather, hourlyData }) {
           </div>}
           {isSunny && <div className="alertCard sun">
             <p>Sunny</p>
+          </div>}
+          {!alertsGenerated && <div className="noAlertCard">
+            <p>No Alerts</p>  
           </div>}
     </div>
   );
