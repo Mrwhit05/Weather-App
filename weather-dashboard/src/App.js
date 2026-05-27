@@ -113,6 +113,64 @@ function App() {
     }
   };
 
+  const handleGeolocation = () => {
+    try {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const {latitude, longitude} = position.coords;
+          console.log(latitude, longitude);
+
+          const API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
+      
+          if (!API_KEY){
+            console.error("API key is missing");
+          }
+
+          const geoResponse = await fetch(
+            `https://api.openweathermap.org/geo/1.0/reverse?lat=${latitude}&lon=${longitude}&limit=1&appid=${API_KEY}`
+          );
+          const geoData = await geoResponse.json();
+          const cityName = geoData[0]?.name;
+
+          const weatherResponse = await fetch(
+            `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${API_KEY}&units=imperial`
+          );
+
+          const data = await weatherResponse.json();
+
+          if (data.cod !== 200){
+            alert(data.message);
+            return;
+          }
+
+          const forecastResponse = await fetch(
+            `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=${API_KEY}&units=imperial`
+          )
+
+          const forecastData = await forecastResponse.json();
+          if (forecastData.cod != 200){
+            alert(forecastData.message);
+            return;
+          }
+
+          console.log(data);
+          setWeather(data);
+          
+          setHourlyData(forecastData.list);
+          console.log(forecastData.list);
+
+          const daily = getDailyForecast(forecastData.list);
+          setDailyData(daily);
+          console.log("hourly: forecastData.list", forecastData.list);
+          console.log("daily", daily);
+        }
+      );
+    }
+    catch (error){
+      console.error("Error fetching weather: ", error);
+    }
+  }
+
   return (
     <div className="app">
       <aside className="sidebar">
@@ -127,6 +185,7 @@ function App() {
         <div className="topBar bg-gray-100 flex justify-between items-center px-6 py-4 shadow">
           <h1>Weather Insight Dashboard</h1>
           <SearchBar onSearch={handleSearch}/>  
+          <button onClick={handleGeolocation}>Use My Location</button>
         </div>
 
         <section id="overview"></section>
@@ -141,7 +200,7 @@ function App() {
             </div>
             <div>
               <WindCompass data={hourlyData}></WindCompass>
-              
+
             </div>
           </div>
         </div>}
