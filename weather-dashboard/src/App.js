@@ -7,6 +7,8 @@ import WeatherCard from "./components/WeatherCard";
 import DayCard from "./components/DayCard";
 import { TemperatureChart, RainChart, HumidityChart, WindCompass } from "./components/Charts";
 
+import { fetchCities } from "./api/geodb";
+
 function getDailyForecast(list){
   const grouped = {};
 
