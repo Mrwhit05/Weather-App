@@ -7,7 +7,6 @@ import WeatherCard from "./components/WeatherCard";
 import DayCard from "./components/DayCard";
 import { TemperatureChart, RainChart, HumidityChart, WindCompass } from "./components/Charts";
 
-import { fetchCities } from "./api/geodb";
 
 function getDailyForecast(list){
   const grouped = {};
@@ -48,6 +47,7 @@ function App() {
   const [weather, setWeather] = useState(null);
   const [hourlyData, setHourlyData] = useState([]);
   const [dailyData, setDailyData] = useState([]);
+  const [aqiData, setAqiData] = useState(null);
 
   let sunriseAdded = false;
   let sunsetAdded = false;
@@ -98,6 +98,13 @@ function App() {
         alert(forecastData.message);
         return;
       }
+
+      const { lat, lon } = data.coord;
+      const aqiResponse = await fetch(
+        `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY}`
+      );
+      const aqiData = await aqiResponse.json();
+      setAqiData(aqiData.list[0]);
 
       console.log(data);
       setWeather(data);
@@ -193,7 +200,7 @@ function App() {
         <section id="overview"></section>
         {weather && <div className="grid grid-cols-2 gap-4">
           <div className="bg-white p-4 rounded-xl shadow">
-            {weather && <Header weather={weather} />}
+            {weather && <Header weather={weather} aqiData={aqiData} />}
           </div>
 
           <div className="alertsCenter">
