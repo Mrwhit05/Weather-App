@@ -2,10 +2,11 @@ import "./App.css";
 import {useState} from "react";
 import SearchBar from "./components/SearchBar";
 import Header from "./components/Header";
-import Alerts from "./components/Alerts";
 import WeatherCard from "./components/WeatherCard";
 import DayCard from "./components/DayCard";
 import { TemperatureChart, RainChart, HumidityChart, WindCompass } from "./components/Charts";
+
+import AlertCard, { addAQI, compileAlerts } from "./components/Alerts";
 
 
 function getDailyForecast(list){
@@ -48,6 +49,7 @@ function App() {
   const [hourlyData, setHourlyData] = useState([]);
   const [dailyData, setDailyData] = useState([]);
   const [aqiData, setAqiData] = useState(null);
+  const [alerts, setAlerts] = useState([]);
 
   let sunriseAdded = false;
   let sunsetAdded = false;
@@ -104,7 +106,7 @@ function App() {
         `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY}`
       );
       const aqiData = await aqiResponse.json();
-      setAqiData(aqiData.list[0]);
+      setAqiData(aqiData.list);
 
       console.log(data);
       setWeather(data);
@@ -116,6 +118,13 @@ function App() {
       setDailyData(daily);
       console.log("hourly: forecastData.list", forecastData.list);
       console.log("daily", daily);
+
+      console.log("aqiData.list", aqiData.list);
+      const enrichedHourly = addAQI({ hourlyData: forecastData.list, aqiData: aqiData.list });
+      console.log("enrichedHourly", enrichedHourly);
+      const compiledAlerts = compileAlerts({ hourlyData: enrichedHourly, dailyData: daily });
+      console.log("compiledAlerts", compiledAlerts);
+      setAlerts(compiledAlerts);
     }
     catch (error){
       console.error("Error fetching weather: ", error);
@@ -172,6 +181,16 @@ function App() {
           setDailyData(daily);
           console.log("hourly: forecastData.list", forecastData.list);
           console.log("daily", daily);
+
+          const aqiResponse = await fetch(
+            `https://api.openweathermap.org/data/2.5/air_pollution?lat=${latitude}&lon=${longitude}&appid=${API_KEY}`
+          );
+          const aqiData = await aqiResponse.json();
+          setAqiData(aqiData.list);
+
+          const enrichedHourly = addAQI({ hourlyData: forecastData.list, aqiData: aqiData.list });
+          const compiledAlerts = compileAlerts({ hourlyData: enrichedHourly, dailyData: daily });
+          setAlerts(compiledAlerts);
         }
       );
     }
@@ -200,16 +219,17 @@ function App() {
         <section id="overview"></section>
         {weather && <div className="grid grid-cols-2 gap-4">
           <div className="bg-white p-4 rounded-xl shadow">
-            {weather && <Header weather={weather} aqiData={aqiData} />}
+            {weather && <Header weather={weather} aqiData={aqiData?.[0]} />}
+            <div>
+              <WindCompass data={hourlyData}></WindCompass>
+            </div>
           </div>
 
           <div className="alertsCenter">
             <div className="bg-white p-4 rounded-xl shadow">
-              <Alerts weather={weather} hourlyData={hourlyData}></Alerts>
-            </div>
-            <div>
-              <WindCompass data={hourlyData}></WindCompass>
-
+              {alerts.length === 0 ? 
+              <p>No active alerts.</p> :
+              alerts.map(alert => <AlertCard key={alert.id} alert={alert} />)}
             </div>
           </div>
         </div>}
