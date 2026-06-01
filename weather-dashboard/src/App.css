@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+.app {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  background-color: #1f2937;
+  height: 100%;
+  width: 15%;
+}
+
+.main {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.header {
+  background-color: darkslategray;
+}
+
+.hourly-carousel {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+
+  padding: 12px 0;
+}
+
+.sun-card {
+  min-width: 100px;
+  flex-shrink: 0;
+
+  color: white;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-size: 14px;
+}
+
+.weather-card img {
+  width: 50px;
+  height: 50px;
+}
+
+.weather-card p {
+  margin: 0;
+}
+
+.charts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.needle {
+  background: linear-gradient(to bottom, red 50%, #aaa 50%);
+  width: 2px;
+  height: 50%;
+  bottom: 50%;
+  left: calc(50% - 2px);
+  transform-origin: bottom center;
+  transform: rotate(0deg);
+
+
+  
+}
