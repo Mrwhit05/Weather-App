@@ -35,6 +35,13 @@ function SearchBar({ onSearch }) {
         className="px-4 py-2 w-64 outline-none"
         value={city}
         onChange={handleInputUpdate}
+        onBlur={() => setTimeout(() => setSuggestions([]), 150)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            onSearch(city);
+            setSuggestions([]);
+          }
+        }}
         placeholder="Enter city"
       />
       <button onClick={() => onSearch(city)} className="bg-blue-500 text-white px-4 py-1 rounded-xl shadow hover:bg-blue-600 hover:shadow-md">Search</button>

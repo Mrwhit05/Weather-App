@@ -105,7 +105,7 @@ function RainChart({ data, type }){
             time: new Date(day.date).toLocaleDateString([], {
                 weekday: "short"
             }),
-            rain: day.rain ? day.rain : 0,
+            rain: day.rain ? day.rain.toFixed(2) : 0,
             pop: Math.round(day.pop)
         }));        
     }

@@ -1,5 +1,5 @@
 import "./App.css";
-import {useState} from "react";
+import {useState, useRef} from "react";
 import SearchBar from "./components/SearchBar";
 import Header from "./components/Header";
 import WeatherCard from "./components/WeatherCard";
@@ -51,9 +51,6 @@ function App() {
   const [aqiData, setAqiData] = useState(null);
   const [alerts, setAlerts] = useState([]);
 
-  let sunriseAdded = false;
-  let sunsetAdded = false;
-
   const sunrise = weather?.sys?.sunrise;
   const sunset = weather?.sys?.sunset;
 
@@ -71,6 +68,25 @@ function App() {
   if (sunset < now) {
     nextSunset = sunset + 86400;
   }
+
+  const sunriseDate = new Date(nextSunrise * 1000);
+  const sunriseString = sunriseDate.toLocaleTimeString([], {
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+
+  const sunsetDate = new Date(nextSunset * 1000);
+  const sunsetString = sunsetDate.toLocaleTimeString([], {
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+
+  const sunriseIndex = hourlyData.slice(0, 12).findIndex(
+    hour => hour.dt > nextSunrise
+  );
+  const sunsetIndex = hourlyData.slice(0, 12).findIndex(
+    hour => hour.dt > nextSunset
+  );
 
   const handleSearch = async (city) => {
     try {
@@ -239,43 +255,26 @@ function App() {
         <div className="hourly-carousel">
           {Array.isArray(hourlyData) && hourlyData.slice(0, 12).map((hour, index) => {
             const elements = [];
-            const hourTime = hour.dt;
 
-            const sunriseDate = new Date(nextSunrise);
-            const sunriseString = sunriseDate.toLocaleTimeString([], {
-              hour: 'numeric',
-              minute: '2-digit',
-            });
-
-            const sunsetDate = new Date(nextSunset);
-            const sunsetString = sunsetDate.toLocaleTimeString([], {
-              hour: 'numeric',
-              minute: '2-digit',
-            });
-
-            if (!sunriseAdded && nextSunrise && Math.abs(hourTime - nextSunrise) < 7200) {
+            if (index === sunriseIndex)
               elements.push(
-              <div key={`sunrise-${index}`} className="sun-card weather-card flex flex-col items-center text-center bg-gray-500 text-white border border-gray-500 p-3 min-w-[100px] shrink-0">
-                <p>{sunriseString}</p>
-                <img src="https://openweathermap.org/img/wn/01d@2x.png" alt="weather icon"></img>
-                <p>Sunrise</p>
-              </div>
+                <div key={`sunrise-${index}`} className="sun-card weather-card flex flex-col items-center text-center bg-gray-500 text-white border border-gray-500 p-3 min-w-[100px] shrink-0">
+                  <p>{sunriseString}</p>
+                  <img src="https://openweathermap.org/img/wn/01d@2x.png" alt="weather icon" />
+                  <p>Sunrise</p>
+                </div>
               );
-              sunriseAdded = true;
-            }
+
+            if (index === sunsetIndex)
+              elements.push(
+                <div key={`sunset-${index}`} className="sun-card weather-card flex flex-col items-center text-center bg-gray-500 text-white border border-gray-500 p-3 min-w-[100px] shrink-0">
+                  <p>{sunsetString}</p>
+                  <img src="https://openweathermap.org/img/wn/01n@2x.png" alt="weather icon" />
+                  <p>Sunset</p>
+                </div>
+              );
 
             elements.push(<WeatherCard key={index} weather={hour} />);
-
-            if (!sunsetAdded && nextSunset && Math.abs(hourTime - nextSunset) < 7200) {
-              elements.push(
-              <div key={`sunset-${index}`} className="sun-card weather-card flex flex-col items-center text-center bg-gray-500 text-white border border-gray-500 p-3 min-w-[100px] shrink-0">
-                <p>{sunsetString}</p>
-                <img src="https://openweathermap.org/img/wn/01n@2x.png" alt="weather icon"></img>
-                <p>Sunset</p>
-              </div>
-              );
-              sunsetAdded = true;
-            }
 
             return elements;
           })}
