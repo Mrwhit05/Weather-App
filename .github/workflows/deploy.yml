@@ -33,6 +33,10 @@ jobs:
 
       - name: Build
         working-directory: weather-dashboard
+        env:
+          REACT_APP_WEATHER_API_KEY: ${{ secrets.REACT_APP_WEATHER_API_KEY }}
+          REACT_APP_GEODB_API_KEY: ${{ secrets.REACT_APP_GEODB_API_KEY }}
+          REACT_APP_GEODB_HOST: ${{ secrets.REACT_APP_GEODB_HOST }}
         run: CI=false npm run build
 
       - uses: actions/configure-pages@v5
