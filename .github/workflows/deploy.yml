@@ -33,7 +33,7 @@ jobs:
 
       - name: Build
         working-directory: weather-dashboard
-        run: npm run build
+        run: CI=false npm run build
 
       - uses: actions/configure-pages@v5
 
