@@ -54,9 +54,6 @@ function App() {
   const sunrise = weather?.sys?.sunrise;
   const sunset = weather?.sys?.sunset;
 
-  //const sunriseTime = new Date(sunrise * 1000);
-  //const sunsetTime = new Date(sunset * 1000);
-
   const now = Date.now() / 1000;
 
   let nextSunrise = sunrise;
@@ -88,7 +85,7 @@ function App() {
     hour => hour.dt > nextSunset
   );
 
-  const handleSearch = async (city) => {
+  const loadWeather = async (city) => {
     try {
       const API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
       
@@ -147,7 +144,16 @@ function App() {
     }
   };
 
-  const handleGeolocation = () => {
+  async function handleSearch(city) {
+    try {
+      await loadWeather(city)
+    }
+    catch(error){
+      console.error("Error fetching weather: ", error);
+    }
+  } 
+
+  async function handleGeolocation() {
     try {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
@@ -166,50 +172,14 @@ function App() {
           const geoData = await geoResponse.json();
           const cityName = geoData[0]?.name;
 
-          const weatherResponse = await fetch(
-            `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${API_KEY}&units=imperial`
-          );
-
-          const data = await weatherResponse.json();
-
-          if (data.cod !== 200){
-            alert(data.message);
+          if (!cityName) {
+            alert("Couldn't determine your city from your location.");
             return;
           }
 
-          const forecastResponse = await fetch(
-            `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=${API_KEY}&units=imperial`
-          )
-
-          const forecastData = await forecastResponse.json();
-          if (forecastData.cod != 200){
-            alert(forecastData.message);
-            return;
-          }
-
-          console.log(data);
-          setWeather(data);
-          
-          setHourlyData(forecastData.list);
-          console.log(forecastData.list);
-
-          const daily = getDailyForecast(forecastData.list);
-          setDailyData(daily);
-          console.log("hourly: forecastData.list", forecastData.list);
-          console.log("daily", daily);
-
-          const aqiResponse = await fetch(
-            `https://api.openweathermap.org/data/2.5/air_pollution?lat=${latitude}&lon=${longitude}&appid=${API_KEY}`
-          );
-          const aqiData = await aqiResponse.json();
-          setAqiData(aqiData.list);
-
-          const enrichedHourly = addAQI({ hourlyData: forecastData.list, aqiData: aqiData.list });
-          const compiledAlerts = compileAlerts({ hourlyData: enrichedHourly, dailyData: daily });
-          setAlerts(compiledAlerts);
-        }
-      );
-    }
+          await loadWeather(cityName);
+    });
+  }
     catch (error){
       console.error("Error fetching weather: ", error);
     }
