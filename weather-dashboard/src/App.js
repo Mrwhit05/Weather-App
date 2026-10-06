@@ -1,5 +1,5 @@
 import "./App.css";
-import {useState, useRef} from "react";
+import {useState} from "react";
 import SearchBar from "./components/SearchBar";
 import Header from "./components/Header";
 import WeatherCard from "./components/WeatherCard";
@@ -7,6 +7,8 @@ import DayCard from "./components/DayCard";
 import { TemperatureChart, RainChart, HumidityChart, WindCompass } from "./components/Charts";
 
 import AlertCard, { addAQI, compileAlerts } from "./components/Alerts";
+import WeatherInsight from "./components/WeatherInsight";
+import { generateInsights } from "./utils/insightEngine";
 
 
 function getDailyForecast(list){
@@ -50,6 +52,7 @@ function App() {
   const [dailyData, setDailyData] = useState([]);
   const [aqiData, setAqiData] = useState(null);
   const [alerts, setAlerts] = useState([]);
+  const [insights, setInsights] = useState([]);
 
   const sunrise = weather?.sys?.sunrise;
   const sunset = weather?.sys?.sunset;
@@ -138,6 +141,14 @@ function App() {
       const compiledAlerts = compileAlerts({ hourlyData: enrichedHourly, dailyData: daily });
       console.log("compiledAlerts", compiledAlerts);
       setAlerts(compiledAlerts);
+
+      const generatedInsights = generateInsights({
+        hourlyData: enrichedHourly,
+        dailyData: daily,
+        currentWeather: data,
+        aqiData: aqiData.list,
+      });
+      setInsights(generatedInsights);
     }
     catch (error){
       console.error("Error fetching weather: ", error);
@@ -217,8 +228,16 @@ function App() {
               <p>No active alerts.</p> :
               alerts.map(alert => <AlertCard key={alert.id} alert={alert} />)}
             </div>
+
+            {weather && (
+              <section className="bg-white p-4 rounded-xl shadow">
+                <WeatherInsight insights={insights} />
+              </section>
+            )}
           </div>
         </div>}
+
+        
 
         <section id="forecast"></section>
         {weather && <p>3-Hour Forecast</p>}
