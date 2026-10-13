@@ -218,7 +218,7 @@ function App() {
         <section id="overview"></section>
         {weather && <div className="grid grid-cols-2 gap-4">
           <div className="bg-white p-4 rounded-xl shadow">
-            {weather && <Header weather={weather} aqiData={aqiData?.[0]} />}
+            {weather && <Header weather={weather} hourlyData={hourlyData} />}
             <div>
               <WindCompass data={hourlyData}></WindCompass>
               <Thermometer
