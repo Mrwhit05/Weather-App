@@ -18,8 +18,6 @@ function Header({ weather, aqiData }) {
           <h2>{weather.name}</h2>
           {weather && <WeatherCard weather={weather} className="bg-gray-700 rounded-2xl p-6 text-lg min-w-[200px]"/>}
           <p>Condition: {weather.weather[0].description}</p>
-          <p>Feels Like: {weather.main.feels_like}°F </p>
-          <p>Min: {weather.main.temp_min} Max: {weather.main.temp_max}</p>
           <p>Humidity: {weather.main.humidity}%</p>
           <p>Pressure: {weather.main.pressure / 100}</p>
           <p>Visibility: {(weather.visibility / 1609).toFixed(1)} mi</p>

@@ -5,6 +5,7 @@ import Header from "./components/Header";
 import WeatherCard from "./components/WeatherCard";
 import DayCard from "./components/DayCard";
 import { TemperatureChart, RainChart, HumidityChart, WindCompass } from "./components/Charts";
+import Thermometer from "./components/Thermometer";
 
 import AlertCard, { addAQI, compileAlerts } from "./components/Alerts";
 import WeatherInsight from "./components/WeatherInsight";
@@ -219,6 +220,12 @@ function App() {
             {weather && <Header weather={weather} aqiData={aqiData?.[0]} />}
             <div>
               <WindCompass data={hourlyData}></WindCompass>
+              <Thermometer
+                temp={weather.main.temp}
+                feelsLike={weather.main.feels_like}
+                low={dailyData[0]?.min}
+                high={dailyData[0]?.max}
+              />
             </div>
           </div>
 
