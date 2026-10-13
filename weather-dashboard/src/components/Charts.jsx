@@ -3,9 +3,11 @@ import {
     Bar,
     LineChart,
     Line,
+    Area,
     XAxis,
     YAxis,
     Tooltip,
+    Legend,
     ResponsiveContainer
 } from "recharts";
 
@@ -30,7 +32,8 @@ function TemperatureChart({ data, type }) {
                 weekday: "short"
             }),
             min: Math.round(day.min),
-            max: Math.round(day.max)
+            max: Math.round(day.max),
+            range: Math.round(day.max) - Math.round(day.min)
         }));
     }
 
@@ -38,49 +41,96 @@ function TemperatureChart({ data, type }) {
         <div>
             {type === "hourly" && <p>Hourly Temperature</p>}
             {type === "daily" && <p>Daily Temperature</p>}
-            <ResponsiveContainer width="100%" height={250}>  
-                <LineChart data={chartData}>
-                    <XAxis dataKey="time"/>
-                    <YAxis label={{ value: "°F", angle: -90, position: "insideLeft"}} domain={[0, 100]}/>
-                    <Tooltip formatter={(value) => `${value}°F`} />
-                    {type === "hourly" && (
-                    <>
-                    <Line
-                        type="monotone"
-                        dataKey="temp"
-                        stroke="#3b82f6"
-                        strokeWidth={3}
-                        name="Temperature"
-                    />
-                    <Line
-                        type="monotone"
-                        dataKey="feels"
-                        stroke="#f97316"
-                        strokeWidth={3}
-                        name="Feels Like"
-                    />
-                    </>
-                    )}
+        
+            <ResponsiveContainer width="100%" height={250}>
+                {type === "hourly" ? (
+                    <LineChart data={chartData}>
+                        <XAxis dataKey="time" />
+                        <YAxis
+                            domain={["0", "100"]}
+                            label={{
+                                value: "°F",
+                                angle: -90,
+                                position: "insideLeft"
+                            }}
+                        />
+                        <Tooltip
+                            formatter={value => `${value}°F`}
+                        />
 
-                    {type === "daily" && (
-                    <>
-                    <Line
-                        type="monotone"
-                        dataKey="max"
-                        stroke="#3b82f6"
-                        strokeWidth={3}
-                        name="High"
-                    />
-                    <Line
-                        type="monotone"
-                        dataKey="min"
-                        stroke="#f97316"
-                        strokeWidth={3}
-                        name="Low"
-                    />
-                    </>
-                    )}
-                </LineChart>
+                        <Line
+                            type="monotone"
+                            dataKey="temp"
+                            stroke="#3b82f6"
+                            strokeWidth={3}
+                            name="Temperature"
+                        />
+                        <Line
+                            type="monotone"
+                            dataKey="feels"
+                            stroke="#f97316"
+                            strokeWidth={3}
+                            name="Feels Like"
+                        />
+                    </LineChart>
+                ) : (
+                    <ComposedChart data={chartData}>
+                        <XAxis dataKey="time" />
+                        <YAxis
+                            domain={[0, 100]}
+                            label={{
+                                value: "°F",
+                                angle: -90,
+                                position: "insideLeft"
+                            }}
+                        />
+                        <Tooltip
+                            formatter={value => `${value}°F`}
+                        />
+                        
+                        <Area
+                            type="monotone"
+                            dataKey="min"
+                            name="Temperature Range Base"
+                            stackId="temperature"
+                            stroke="none"
+                            fill="transparent"
+                            legendType="none"
+                            tooltipType="none"
+                            isAnimationActive={false}
+                        />
+
+                        <Area
+                            type="monotone"
+                            dataKey="range"
+                            name="Daily Range"
+                            stackId="temperature"
+                            stroke="none"
+                            fill="#3b82f6"
+                            fillOpacity={0.18}
+                            legendType="none"
+                            tooltipType="none"
+                            isAnimationActive={false}
+                        />
+
+                        <Line
+                            type="monotone"
+                            dataKey="max"
+                            stroke="#3b82f6"
+                            strokeWidth={3}
+                            name="High"
+                        />
+
+                        <Line
+                            type="monotone"
+                            dataKey="min"
+                            stroke="#f97316"
+                            strokeWidth={3}
+                            name="Low"
+                        />
+
+                    </ComposedChart>
+                )}
             </ResponsiveContainer>
         </div>
     );
