@@ -6,6 +6,7 @@ import WeatherCard from "./components/WeatherCard";
 import DayCard from "./components/DayCard";
 import { TemperatureChart, RainChart, HumidityChart, WindCompass } from "./components/Charts";
 import Thermometer from "./components/Thermometer";
+import AQIGauge from "./components/AQIGauge";
 
 import AlertCard, { addAQI, compileAlerts } from "./components/Alerts";
 import WeatherInsight from "./components/WeatherInsight";
@@ -227,6 +228,7 @@ function App() {
                 high={dailyData[0]?.max}
               />
             </div>
+            <AQIGauge aqi={aqiData?.[0]?.main?.aqi}/>
           </div>
 
           <div className="alertsCenter">

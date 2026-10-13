@@ -21,7 +21,6 @@ function Header({ weather, aqiData }) {
           <p>Humidity: {weather.main.humidity}%</p>
           <p>Pressure: {weather.main.pressure / 100}</p>
           <p>Visibility: {(weather.visibility / 1609).toFixed(1)} mi</p>
-          <p>AQI: {aqi} - {aqiLabel}</p>
           <p>Dew Point: {dewPoint.toFixed(2)}</p>
     </div>
   );
