@@ -1,7 +1,7 @@
 import "./App.css";
 import {useState} from "react";
 import SearchBar from "./components/SearchBar";
-import Header from "./components/Header";
+import Header, { StatsGrid } from "./components/Header";
 import WeatherCard from "./components/WeatherCard";
 import DayCard from "./components/DayCard";
 import { TemperatureChart, RainChart, HumidityChart, WindCompass } from "./components/Charts";
@@ -55,6 +55,16 @@ function App() {
   const [aqiData, setAqiData] = useState(null);
   const [alerts, setAlerts] = useState([]);
   const [insights, setInsights] = useState([]);
+
+  const headingDate = weather
+    ? new Date(weather.dt * 1000).toLocaleString([], {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      })
+    : "";
 
   const sunrise = weather?.sys?.sunrise;
   const sunset = weather?.sys?.sunset;
@@ -216,35 +226,55 @@ function App() {
         </div>
 
         <section id="overview"></section>
-        {weather && <div className="grid grid-cols-2 gap-4">
-          <div className="bg-white p-4 rounded-xl shadow">
-            {weather && <Header weather={weather} hourlyData={hourlyData} />}
-            <div>
-              <WindCompass data={hourlyData}></WindCompass>
-              <Thermometer
-                temp={weather.main.temp}
-                feelsLike={weather.main.feels_like}
-                low={dailyData[0]?.min}
-                high={dailyData[0]?.max}
-              />
-            </div>
-            <AQIGauge aqi={aqiData?.[0]?.main?.aqi}/>
-          </div>
-
-          <div className="alertsCenter">
-            <div className="bg-white p-4 rounded-xl shadow">
-              {alerts.length === 0 ? 
-              <p>No active alerts.</p> :
-              alerts.map(alert => <AlertCard key={alert.id} alert={alert} />)}
+        {weather && (
+          <div>
+            <div className="mb-4">
+              <h2 className="text-2xl font-semibold">{weather.name}</h2>
+              <p className="text-sm text-gray-500">{headingDate}</p>
             </div>
 
-            {weather && (
-              <section className="bg-white p-4 rounded-xl shadow">
-                <WeatherInsight insights={insights} />
-              </section>
-            )}
-          </div>
-        </div>}
+            <div className="grid grid-cols-[minmax(0,3fr)_minmax(0,1.15fr)] gap-4 items-stretch">
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-white p-4 rounded-xl shadow">
+                  <h2 className="font-semibold mb-3">Current conditions</h2>
+                  <Header weather={weather} hourlyData={hourlyData} />
+                </div>
+                <div className="bg-white p-4 rounded-xl shadow">
+                  <h2 className="font-semibold mb-3">Temperature</h2>
+                  <Thermometer
+                    temp={weather.main.temp}
+                    feelsLike={weather.main.feels_like}
+                    low={dailyData[0]?.min}
+                    high={dailyData[0]?.max}
+                  />
+                </div>
+                <div className="bg-white p-4 rounded-xl shadow">
+                  <h2 className="font-semibold mb-3">Air quality</h2>
+                  <AQIGauge aqi={aqiData?.[0]?.main?.aqi}/>
+                </div>
+                <div>
+                  <h2 className="font-semibold mb-3">Conditions</h2>
+                  <StatsGrid weather={weather} hourlyData={hourlyData}/>
+                </div>
+                <div className="bg-white p-4 rounded-xl shadow">
+                  <h2 className="font-semibold mb-3">Wind</h2>
+                  <WindCompass data={hourlyData}></WindCompass>
+                </div>
+              </div>
+              <div className="flex flex-col gap-4">
+                <div className="bg-white p-4 rounded-xl shadow">
+                  <h2 className="font-semibold mb-3">Alerts</h2>
+                  {alerts.length === 0 ? 
+                  <p>No active alerts.</p> :
+                  alerts.map(alert => <AlertCard key={alert.id} alert={alert} />)}
+                </div>
+                <section className="bg-white p-4 rounded-xl shadow">
+                  <WeatherInsight insights={insights} />
+                </section>
+              </div>
+            </div>
+        </div>
+        )}
 
         
 

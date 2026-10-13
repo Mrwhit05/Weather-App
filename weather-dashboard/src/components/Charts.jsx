@@ -230,23 +230,26 @@ function WindCompass({ data}) {
             break;
 
         default:
-            windDescription = "Unknown";
+            windDirection = "Unknown";
     }
 
-    windDescription = `${Math.round(data[0].wind.speed)} mph ${data[0].wind.deg}° ${windDirection}`;
-    
-
     return (
-        <div className="compass-container flex flex-col items-center gap-2">
-            <div className="compass relative w-32 h-32 rounded-full border-2 border-gray-300 flex items-center justify-center">
-                <span className="north absolute top-1 left-1/2 -translate-x-1/2 text-sm font-bold">N</span>
-                <span className="south absolute bottom-1 left-1/2 -translate-x-1/2 text-sm font-bold">S</span>
-                <span className="east absolute right-1 top-1/2 -translate-y-1/2 text-sm font-bold">E</span>
-                <span className="west absolute left-1 top-1/2 -translate-y-1/2 text-sm font-bold">W</span>
-                <div className="needle absolute w-1 h-14 rounded-full origin-bottom" style={{ transform: `rotate(${data[0].wind.deg}deg)`}}></div>
-                <div className="w-2 h-2 rounded-full bg-gray-400 z-10"></div>
+        <div className="flex items-center w-full max-w-[420px] mx-auto" role="img" aria-label={`Wind ${data[0].wind.speed} mph from the ${windDirection}${data[0].wind.gust != null ? `, gusts ${data[0].wind.gust} mph` : ""}`}>
+            <div className="basis-[60%] min-w-0 flex justify-center">
+                <div className="compass relative w-28 h-28 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                    <span className="north absolute top-1 left-1/2 -translate-x-1/2 text-sm font-bold">N</span>
+                    <span className="south absolute bottom-1 left-1/2 -translate-x-1/2 text-sm font-bold">S</span>
+                    <span className="east absolute right-1 top-1/2 -translate-y-1/2 text-sm font-bold">E</span>
+                    <span className="west absolute left-1 top-1/2 -translate-y-1/2 text-sm font-bold">W</span>
+                    <div className="needle absolute w-1 h-12 rounded-full origin-bottom" style={{ transform: `rotate(${data[0].wind.deg}deg)`}}></div>
+                    <div className="w-2 h-2 rounded-full bg-gray-400 z-10"></div>
+                </div>
             </div>
-            <p>{windDescription}</p>
+            <div className="basis-[40%] min-w-0 pl-2">
+                <p className="font-bold leading-none text-3xl">{Math.round(data[0].wind.deg)}° {windDirection}</p>
+                <p className="font-bold mt-2 text-sm text-gray-500">{data[0].wind.speed} mph</p>
+                {data[0].wind.gust != null && <p className="font-bold text-sm text-gray-500">Gusts {data[0].wind.gust} mph</p>}
+            </div>
         </div>
     )
 

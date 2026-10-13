@@ -71,7 +71,7 @@ function Thermometer({ temp, feelsLike, low, high }) {
     >
       {/* Left 60%: the drawing */}
       <div className="basis-[60%] min-w-0">
-        <svg viewBox="0 0 160 310" className="w-full h-auto" aria-hidden="true">
+        <svg viewBox="0 0 160 310" className="w-full h-auto max-h-[240px]" aria-hidden="true">
           <style>{`
             @keyframes thermo-pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
             @media (prefers-reduced-motion: no-preference) {
