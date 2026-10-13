@@ -69,14 +69,14 @@ function TemperatureChart({ data, type }) {
                         dataKey="max"
                         stroke="#3b82f6"
                         strokeWidth={3}
-                        name="Temperature"
+                        name="High"
                     />
                     <Line
                         type="monotone"
                         dataKey="min"
                         stroke="#f97316"
                         strokeWidth={3}
-                        name="Feels Like"
+                        name="Low"
                     />
                     </>
                     )}
@@ -91,7 +91,7 @@ function RainChart({ data, type }){
 
     let rainChartData;
     if (type === "hourly") {
-        rainChartData = data.slice(0, 12).map(item => ({
+        rainChartData = data.slice(0, 8).map(item => ({
             time: new Date(item.dt * 1000).toLocaleTimeString([], {
                 hour: "numeric"
             }),
@@ -117,12 +117,12 @@ function RainChart({ data, type }){
             <ResponsiveContainer width="100%" height={250}>
                 <ComposedChart data={rainChartData}>
                     <XAxis dataKey="time" />
-                    <YAxis yAxisId="left" label={{value: "Rainfall (mm)", angle: -90, position: "insideLeft"}}/>
-                    <YAxis yAxisId="right" orientation="right" label={{value: "% Chance", angle: -90, position: "insideRight"}} domain={[0, 100]}/>
-                    <Tooltip />
+                    <YAxis yAxisId="left" label={{value: "Rainfall (mm)", angle: -90, position: "insideLeft"}} domain={[0, rainChartData.rain > 3 ? "auto" : 3]}/>
+                    <YAxis yAxisId="right" orientation="right" label={{value: "% Chance", angle: -90, position: "insideRight"}} domain={[0, 100]} tickFormatter={value => `${value}%`}/>
+                    <Tooltip formatter={(value, name) => [name === "Chance of Rain" ? `${value}%` : `${Number(value).toFixed(2)} mm`, name]} />
 
-                    <Line dataKey="pop" yAxisId="right" type="monotone" name="Chance of Rain" />
-                    <Bar dataKey="rain" yAxisId="left" name="Rainfall" fill="#0000ff"/>
+                    <Line dataKey="pop" yAxisId="right" type="monotone" name="Chance of Rain" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} />
+                    <Bar dataKey="rain" yAxisId="left" name="Rainfall" fill="#25bfef"/>
                 </ComposedChart>
             </ResponsiveContainer>
         </div>
@@ -158,9 +158,9 @@ function HumidityChart({ data, type }) {
             {type === "daily" && <p>Daily Humidity</p>}
             <ResponsiveContainer width="100%" height={250}>
                 <LineChart data={chartData}>
-                    <XAxis dataKey="time"/>
-                    <YAxis/>
-                    <Tooltip formatter={(value) => `${value}%`} />
+                    <XAxis dataKey="time"  />
+                    <YAxis domain={[0, 100]} tickFormatter={value => `${value}%`}/>
+                    <Tooltip formatter={(value) => [`${value}%`, "Humidity"]} />
                     {type === "hourly" && (
                     <>
                     <Line
