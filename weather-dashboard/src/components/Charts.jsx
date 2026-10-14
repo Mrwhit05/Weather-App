@@ -131,7 +131,7 @@ function TemperatureChart({ data, type }) {
                         <Line
                             type="monotone"
                             dataKey="max"
-                            stroke="#3b82f6"
+                            stroke="#f97316"
                             strokeWidth={3}
                             name="High"
                         />
@@ -139,7 +139,7 @@ function TemperatureChart({ data, type }) {
                         <Line
                             type="monotone"
                             dataKey="min"
-                            stroke="#f97316"
+                            stroke="#3b82f6"
                             strokeWidth={3}
                             name="Low"
                         />
@@ -175,26 +175,47 @@ function RainChart({ data, type }){
         }));        
     }
 
+    const maxRain = Math.max(
+        0,
+        ...rainChartData.map(item => item.rain)
+    );
+
+    const rainAxisMax = Math.max(3, Math.ceil(maxRain));
+    const isDry = rainChartData.every(item => Number(item.rain) === 0);
+
     return (
         <div>
             {type === "hourly" && <p>Hourly Rain</p>}
             {type === "daily" && <p>Daily Rain Trend</p>}
-            <ResponsiveContainer width="100%" height={250}>
-                <ComposedChart data={rainChartData}>
-                    <CartesianGrid
-                        strokeDasharray="3 3"
-                        stroke="#888888"
-                        opacity={0.25}
-                    />
-                    <XAxis dataKey="time" />
-                    <YAxis yAxisId="left" label={{value: "Rainfall (mm)", angle: -90, position: "insideLeft"}} domain={[0, rainChartData.rain > 3 ? "auto" : 3]}/>
-                    <YAxis yAxisId="right" orientation="right" label={{value: "% Chance", angle: -90, position: "insideRight"}} domain={[0, 100]} tickFormatter={value => `${value}%`}/>
-                    <Tooltip formatter={(value, name) => [name === "Chance of Rain" ? `${value}%` : `${Number(value).toFixed(2)} mm`, name]} />
-                    <Legend verticalAlign="top" height={36}/>
-                    <Line dataKey="pop" yAxisId="right" type="monotone" name="Chance of Rain" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} />
-                    <Bar dataKey="rain" yAxisId="left" name="Rainfall" fill="#25bfef"/>
-                </ComposedChart>
-            </ResponsiveContainer>
+            <div className="relative">
+                <ResponsiveContainer width="100%" height={250}>
+                    <ComposedChart data={rainChartData}>
+                        <CartesianGrid
+                            strokeDasharray="3 3"
+                            stroke="#888888"
+                            opacity={0.25}
+                        />
+                        <XAxis dataKey="time" />
+                        <YAxis yAxisId="left" label={{value: "Rainfall (mm)", angle: -90, position: "insideLeft"}} domain={[0, rainAxisMax]}/>
+                        <YAxis yAxisId="right" orientation="right" label={{value: "% Chance", angle: -90, position: "insideRight"}} domain={[0, 100]} tickFormatter={value => `${value}%`}/>
+                        <Tooltip formatter={(value, name) => [name === "Chance of Rain" ? `${value}%` : `${Number(value).toFixed(2)} mm`, name]} />
+                        <Legend verticalAlign="top" height={36}/>
+                        <Line dataKey="pop" yAxisId="right" type="monotone" name="Chance of Rain" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} />
+                        <Bar dataKey="rain" yAxisId="left" name="Rainfall" fill="#25bfef"/>
+                    </ComposedChart>
+                </ResponsiveContainer>
+
+                {isDry && (
+                    <div className="absolute inset-0 pt-9 flex items-center justify-center pointer-events-none">
+                        <div className="rounded-lg bg-white/90 border border-gray-200 px-4 py-2 text-center shadow-sm">
+                            <p className="text-sm font-semibold text-gray-700">No rain predicted</p>
+                            <p className="text-xs text-gray-500">
+                                {type === "hourly" ? "Next 24 hours" : "Next 5 days"}
+                            </p>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
