@@ -8,6 +8,7 @@ import {
     YAxis,
     Tooltip,
     Legend,
+    CartesianGrid,
     ResponsiveContainer
 } from "recharts";
 
@@ -45,36 +46,11 @@ function TemperatureChart({ data, type }) {
             <ResponsiveContainer width="100%" height={250}>
                 {type === "hourly" ? (
                     <LineChart data={chartData}>
-                        <XAxis dataKey="time" />
-                        <YAxis
-                            domain={["0", "100"]}
-                            label={{
-                                value: "°F",
-                                angle: -90,
-                                position: "insideLeft"
-                            }}
+                        <CartesianGrid
+                            strokeDasharray="3 3"
+                            stroke="#888888"
+                            opacity={0.25}
                         />
-                        <Tooltip
-                            formatter={value => `${value}°F`}
-                        />
-
-                        <Line
-                            type="monotone"
-                            dataKey="temp"
-                            stroke="#3b82f6"
-                            strokeWidth={3}
-                            name="Temperature"
-                        />
-                        <Line
-                            type="monotone"
-                            dataKey="feels"
-                            stroke="#f97316"
-                            strokeWidth={3}
-                            name="Feels Like"
-                        />
-                    </LineChart>
-                ) : (
-                    <ComposedChart data={chartData}>
                         <XAxis dataKey="time" />
                         <YAxis
                             domain={[0, 100]}
@@ -87,7 +63,46 @@ function TemperatureChart({ data, type }) {
                         <Tooltip
                             formatter={value => `${value}°F`}
                         />
-                        
+                        <Legend verticalAlign="top" height={36}/>
+                        <Line
+                            type="monotone"
+                            dataKey="temp"
+                            stroke="#3b82f6"
+                            strokeWidth={3}
+                            dot={{ r: 3 }}
+                            activeDot={{ r: 6 }}
+                            name="Temperature"
+                        />
+                        <Line
+                            type="monotone"
+                            dataKey="feels"
+                            stroke="#f97316"
+                            strokeWidth={3}
+                            dot={{ r: 3 }}
+                            activeDot={{ r: 6 }}
+                            name="Feels Like"
+                        />
+                    </LineChart>
+                ) : (
+                    <ComposedChart data={chartData}>
+                        <CartesianGrid 
+                            strokeDasharray="3 3"
+                            stroke="#888888"
+                            opacity={0.25}
+                        />
+                        <XAxis dataKey="time" />
+                        <YAxis
+                            domain={[0, 100]}
+                            label={{
+                                value: "°F",
+                                angle: -90,
+                                position: "insideLeft"
+                            }}
+                        />
+                        <Tooltip
+                            formatter={value => `${value}°F`}
+                        />
+                        <Legend verticalAlign="top" height={36}/>
                         <Area
                             type="monotone"
                             dataKey="min"
@@ -166,11 +181,16 @@ function RainChart({ data, type }){
             {type === "daily" && <p>Daily Rain Trend</p>}
             <ResponsiveContainer width="100%" height={250}>
                 <ComposedChart data={rainChartData}>
+                    <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="#888888"
+                        opacity={0.25}
+                    />
                     <XAxis dataKey="time" />
                     <YAxis yAxisId="left" label={{value: "Rainfall (mm)", angle: -90, position: "insideLeft"}} domain={[0, rainChartData.rain > 3 ? "auto" : 3]}/>
                     <YAxis yAxisId="right" orientation="right" label={{value: "% Chance", angle: -90, position: "insideRight"}} domain={[0, 100]} tickFormatter={value => `${value}%`}/>
                     <Tooltip formatter={(value, name) => [name === "Chance of Rain" ? `${value}%` : `${Number(value).toFixed(2)} mm`, name]} />
-
+                    <Legend verticalAlign="top" height={36}/>
                     <Line dataKey="pop" yAxisId="right" type="monotone" name="Chance of Rain" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} />
                     <Bar dataKey="rain" yAxisId="left" name="Rainfall" fill="#25bfef"/>
                 </ComposedChart>
@@ -208,9 +228,15 @@ function HumidityChart({ data, type }) {
             {type === "daily" && <p>Daily Humidity</p>}
             <ResponsiveContainer width="100%" height={250}>
                 <LineChart data={chartData}>
+                    <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="#888888"
+                        opacity={0.25}
+                    />
                     <XAxis dataKey="time"  />
                     <YAxis domain={[0, 100]} tickFormatter={value => `${value}%`}/>
                     <Tooltip formatter={(value) => [`${value}%`, "Humidity"]} />
+                    <Legend verticalAlign="top" height={36}/>
                     {type === "hourly" && (
                     <>
                     <Line
