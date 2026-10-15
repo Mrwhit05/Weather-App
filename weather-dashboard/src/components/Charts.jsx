@@ -3,9 +3,12 @@ import {
     Bar,
     LineChart,
     Line,
+    Area,
     XAxis,
     YAxis,
     Tooltip,
+    Legend,
+    CartesianGrid,
     ResponsiveContainer
 } from "recharts";
 
@@ -30,7 +33,8 @@ function TemperatureChart({ data, type }) {
                 weekday: "short"
             }),
             min: Math.round(day.min),
-            max: Math.round(day.max)
+            max: Math.round(day.max),
+            range: Math.round(day.max) - Math.round(day.min)
         }));
     }
 
@@ -38,49 +42,110 @@ function TemperatureChart({ data, type }) {
         <div>
             {type === "hourly" && <p>Hourly Temperature</p>}
             {type === "daily" && <p>Daily Temperature</p>}
-            <ResponsiveContainer width="100%" height={250}>  
-                <LineChart data={chartData}>
-                    <XAxis dataKey="time"/>
-                    <YAxis label={{ value: "°F", angle: -90, position: "insideLeft"}} domain={[0, 100]}/>
-                    <Tooltip formatter={(value) => `${value}°F`} />
-                    {type === "hourly" && (
-                    <>
-                    <Line
-                        type="monotone"
-                        dataKey="temp"
-                        stroke="#3b82f6"
-                        strokeWidth={3}
-                        name="Temperature"
-                    />
-                    <Line
-                        type="monotone"
-                        dataKey="feels"
-                        stroke="#f97316"
-                        strokeWidth={3}
-                        name="Feels Like"
-                    />
-                    </>
-                    )}
+        
+            <ResponsiveContainer width="100%" height={250}>
+                {type === "hourly" ? (
+                    <LineChart data={chartData}>
+                        <CartesianGrid
+                            strokeDasharray="3 3"
+                            stroke="#888888"
+                            opacity={0.25}
+                        />
+                        <XAxis dataKey="time" />
+                        <YAxis
+                            domain={[0, 100]}
+                            label={{
+                                value: "°F",
+                                angle: -90,
+                                position: "insideLeft"
+                            }}
+                        />
+                        <Tooltip
+                            formatter={value => `${value}°F`}
+                        />
+                        <Legend verticalAlign="top" height={36}/>
+                        <Line
+                            type="monotone"
+                            dataKey="temp"
+                            stroke="#3b82f6"
+                            strokeWidth={3}
+                            dot={{ r: 3 }}
+                            activeDot={{ r: 6 }}
+                            name="Temperature"
+                        />
+                        <Line
+                            type="monotone"
+                            dataKey="feels"
+                            stroke="#f97316"
+                            strokeWidth={3}
+                            dot={{ r: 3 }}
+                            activeDot={{ r: 6 }}
+                            name="Feels Like"
+                        />
+                    </LineChart>
+                ) : (
+                    <ComposedChart data={chartData}>
+                        <CartesianGrid 
+                            strokeDasharray="3 3"
+                            stroke="#888888"
+                            opacity={0.25}
+                        />
+                        <XAxis dataKey="time" />
+                        <YAxis
+                            domain={[0, 100]}
+                            label={{
+                                value: "°F",
+                                angle: -90,
+                                position: "insideLeft"
+                            }}
+                        />
+                        <Tooltip
+                            formatter={value => `${value}°F`}
+                        />
+                        <Legend verticalAlign="top" height={36}/>
+                        <Area
+                            type="monotone"
+                            dataKey="min"
+                            name="Temperature Range Base"
+                            stackId="temperature"
+                            stroke="none"
+                            fill="transparent"
+                            legendType="none"
+                            tooltipType="none"
+                            isAnimationActive={false}
+                        />
 
-                    {type === "daily" && (
-                    <>
-                    <Line
-                        type="monotone"
-                        dataKey="max"
-                        stroke="#3b82f6"
-                        strokeWidth={3}
-                        name="Temperature"
-                    />
-                    <Line
-                        type="monotone"
-                        dataKey="min"
-                        stroke="#f97316"
-                        strokeWidth={3}
-                        name="Feels Like"
-                    />
-                    </>
-                    )}
-                </LineChart>
+                        <Area
+                            type="monotone"
+                            dataKey="range"
+                            name="Daily Range"
+                            stackId="temperature"
+                            stroke="none"
+                            fill="#3b82f6"
+                            fillOpacity={0.18}
+                            legendType="none"
+                            tooltipType="none"
+                            isAnimationActive={false}
+                        />
+
+                        <Line
+                            type="monotone"
+                            dataKey="max"
+                            stroke="#f97316"
+                            strokeWidth={3}
+                            name="High"
+                        />
+
+                        <Line
+                            type="monotone"
+                            dataKey="min"
+                            stroke="#3b82f6"
+                            strokeWidth={3}
+                            name="Low"
+                        />
+
+                    </ComposedChart>
+                )}
             </ResponsiveContainer>
         </div>
     );
@@ -91,7 +156,7 @@ function RainChart({ data, type }){
 
     let rainChartData;
     if (type === "hourly") {
-        rainChartData = data.slice(0, 12).map(item => ({
+        rainChartData = data.slice(0, 8).map(item => ({
             time: new Date(item.dt * 1000).toLocaleTimeString([], {
                 hour: "numeric"
             }),
@@ -110,21 +175,47 @@ function RainChart({ data, type }){
         }));        
     }
 
+    const maxRain = Math.max(
+        0,
+        ...rainChartData.map(item => item.rain)
+    );
+
+    const rainAxisMax = Math.max(3, Math.ceil(maxRain));
+    const isDry = rainChartData.every(item => Number(item.rain) === 0 && item.pop === 0);
+
     return (
         <div>
             {type === "hourly" && <p>Hourly Rain</p>}
             {type === "daily" && <p>Daily Rain Trend</p>}
-            <ResponsiveContainer width="100%" height={250}>
-                <ComposedChart data={rainChartData}>
-                    <XAxis dataKey="time" />
-                    <YAxis yAxisId="left" label={{value: "Rainfall (mm)", angle: -90, position: "insideLeft"}}/>
-                    <YAxis yAxisId="right" orientation="right" label={{value: "% Chance", angle: -90, position: "insideRight"}} domain={[0, 100]}/>
-                    <Tooltip />
+            <div className="relative">
+                <ResponsiveContainer width="100%" height={250}>
+                    <ComposedChart data={rainChartData}>
+                        <CartesianGrid
+                            strokeDasharray="3 3"
+                            stroke="#888888"
+                            opacity={0.25}
+                        />
+                        <XAxis dataKey="time" />
+                        <YAxis yAxisId="left" label={{value: "Rainfall (mm)", angle: -90, position: "insideLeft"}} domain={[0, rainAxisMax]}/>
+                        <YAxis yAxisId="right" orientation="right" label={{value: "% Chance", angle: -90, position: "insideRight"}} domain={[0, 100]} tickFormatter={value => `${value}%`}/>
+                        <Tooltip formatter={(value, name) => [name === "Chance of Rain" ? `${value}%` : `${Number(value).toFixed(2)} mm`, name]} />
+                        <Legend verticalAlign="top" height={36}/>
+                        <Line dataKey="pop" yAxisId="right" type="monotone" name="Chance of Rain" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} />
+                        <Bar dataKey="rain" yAxisId="left" name="Rainfall" fill="#25bfef"/>
+                    </ComposedChart>
+                </ResponsiveContainer>
 
-                    <Line dataKey="pop" yAxisId="right" type="monotone" name="Chance of Rain" />
-                    <Bar dataKey="rain" yAxisId="left" name="Rainfall" fill="#0000ff"/>
-                </ComposedChart>
-            </ResponsiveContainer>
+                {isDry && (
+                    <div className="absolute inset-0 pt-9 flex items-center justify-center pointer-events-none">
+                        <div className="rounded-lg bg-white/90 border border-gray-200 px-4 py-2 text-center shadow-sm">
+                            <p className="text-sm font-semibold text-gray-700">No rain predicted</p>
+                            <p className="text-xs text-gray-500">
+                                {type === "hourly" ? "Next 24 hours" : "Next 5 days"}
+                            </p>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
@@ -158,9 +249,15 @@ function HumidityChart({ data, type }) {
             {type === "daily" && <p>Daily Humidity</p>}
             <ResponsiveContainer width="100%" height={250}>
                 <LineChart data={chartData}>
-                    <XAxis dataKey="time"/>
-                    <YAxis/>
-                    <Tooltip formatter={(value) => `${value}%`} />
+                    <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="#888888"
+                        opacity={0.25}
+                    />
+                    <XAxis dataKey="time"  />
+                    <YAxis domain={[0, 100]} tickFormatter={value => `${value}%`}/>
+                    <Tooltip formatter={(value) => [`${value}%`, "Humidity"]} />
+                    <Legend verticalAlign="top" height={36}/>
                     {type === "hourly" && (
                     <>
                     <Line
@@ -230,23 +327,26 @@ function WindCompass({ data}) {
             break;
 
         default:
-            windDescription = "Unknown";
+            windDirection = "Unknown";
     }
 
-    windDescription = `${Math.round(data[0].wind.speed)} mph ${data[0].wind.deg}° ${windDirection}`;
-    
-
     return (
-        <div className="compass-container flex flex-col items-center gap-2">
-            <div className="compass relative w-32 h-32 rounded-full border-2 border-gray-300 flex items-center justify-center">
-                <span className="north absolute top-1 left-1/2 -translate-x-1/2 text-sm font-bold">N</span>
-                <span className="south absolute bottom-1 left-1/2 -translate-x-1/2 text-sm font-bold">S</span>
-                <span className="east absolute right-1 top-1/2 -translate-y-1/2 text-sm font-bold">E</span>
-                <span className="west absolute left-1 top-1/2 -translate-y-1/2 text-sm font-bold">W</span>
-                <div className="needle absolute w-1 h-14 rounded-full origin-bottom" style={{ transform: `rotate(${data[0].wind.deg}deg)`}}></div>
-                <div className="w-2 h-2 rounded-full bg-gray-400 z-10"></div>
+        <div className="flex items-center w-full max-w-[420px] mx-auto" role="img" aria-label={`Wind ${data[0].wind.speed} mph from the ${windDirection}${data[0].wind.gust != null ? `, gusts ${data[0].wind.gust} mph` : ""}`}>
+            <div className="basis-[60%] min-w-0 flex justify-center">
+                <div className="compass relative w-28 h-28 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                    <span className="north absolute top-1 left-1/2 -translate-x-1/2 text-sm font-bold">N</span>
+                    <span className="south absolute bottom-1 left-1/2 -translate-x-1/2 text-sm font-bold">S</span>
+                    <span className="east absolute right-1 top-1/2 -translate-y-1/2 text-sm font-bold">E</span>
+                    <span className="west absolute left-1 top-1/2 -translate-y-1/2 text-sm font-bold">W</span>
+                    <div className="needle absolute w-1 h-12 rounded-full origin-bottom" style={{ transform: `rotate(${data[0].wind.deg}deg)`}}></div>
+                    <div className="w-2 h-2 rounded-full bg-gray-400 z-10"></div>
+                </div>
             </div>
-            <p>{windDescription}</p>
+            <div className="basis-[40%] min-w-0 pl-2">
+                <p className="font-bold leading-none text-3xl">{Math.round(data[0].wind.deg)}° {windDirection}</p>
+                <p className="font-bold mt-2 text-sm text-gray-500">{data[0].wind.speed} mph</p>
+                {data[0].wind.gust != null && <p className="font-bold text-sm text-gray-500">Gusts {data[0].wind.gust} mph</p>}
+            </div>
         </div>
     )
 

@@ -518,17 +518,27 @@ export function compileAlerts({ hourlyData, dailyData}) {
   return compressAlerts(alerts);
 }
 
+const severity_styles = {
+  info: {border: "border-blue-300", pill: "bg-blue-100 text-blue-800"},
+  watch: {border: "border-yellow-300", pill: "bg-yellow-100 text-yellow-800"},
+  warning: {border: "border-orange-400", pill: "bg-orange-100 text-orange-800"},
+  critical: {border: "border-red-500", pill: "bg-red-500 text-red-800"},
+};
+
 function AlertCard({ alert }) {
   const alertStart = new Date(alert.issuedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   const alertEnd = new Date(alert.expiresAt * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const style = severity_styles[alert.severity] || severity_styles.info;
+
   return (
-    <div className="border-l-4 rounded-lg p-3 mb-2">
-      <div className="">
-        <p className="font-semibold text-sm">{alert.title}</p>
-        <p>{alert.message}</p>
-        <p>{alertStart} - {alertEnd}</p>
-      </div>
-    </div>
+    <details className={`group border-l-4 ${style.border} rounded-lg px-3 py-1.5 mb-1 open:bg-gray-50`}>
+      <summary className={`inline-flex items-center gap-2 cursor-pointer list-none [&::-webkit-details-marker]:hidden rounded-full px-3 py-1 text-sm font-semibold ${style.pill}`}>
+        {alert.title}
+        <span className="text-sm leading-none transition-transform duration-150 group-open:rotate-180">▾</span>
+      </summary>
+      <p className="mt-2 ml-1 text-sm text-gray-600">{alert.message}</p>
+      <p className="mt-1 ml-1 text-xs text-gray-400">{alertStart} - {alertEnd}</p>
+    </details>
   );
 }
 

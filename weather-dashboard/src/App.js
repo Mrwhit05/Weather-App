@@ -1,10 +1,12 @@
 import "./App.css";
 import {useState} from "react";
 import SearchBar from "./components/SearchBar";
-import Header from "./components/Header";
+import Header, { StatsGrid } from "./components/Header";
 import WeatherCard from "./components/WeatherCard";
 import DayCard from "./components/DayCard";
 import { TemperatureChart, RainChart, HumidityChart, WindCompass } from "./components/Charts";
+import Thermometer from "./components/Thermometer";
+import AQIGauge from "./components/AQIGauge";
 
 import AlertCard, { addAQI, compileAlerts } from "./components/Alerts";
 import WeatherInsight from "./components/WeatherInsight";
@@ -196,6 +198,12 @@ function App() {
     }
   }
 
+  const fiveDays = [...dailyData]
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .slice(0, 5);
+  const weekMin = Math.min(...fiveDays.map(d => d.min));
+  const weekMax = Math.max(...fiveDays.map(d => d.max));
+
   return (
     <div className="app">
       <aside className="sidebar">
@@ -214,30 +222,61 @@ function App() {
         </div>
 
         <section id="overview"></section>
-        {weather && <div className="grid grid-cols-2 gap-4">
-          <div className="bg-white p-4 rounded-xl shadow">
-            {weather && <Header weather={weather} aqiData={aqiData?.[0]} />}
-            <div>
-              <WindCompass data={hourlyData}></WindCompass>
+        {weather && (
+          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)] gap-4 items-stretch">
+            <Header weather={weather} hourlyData={hourlyData} />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white p-4 rounded-xl shadow flex flex-col">
+                <h2 className="font-semibold mb-3">Temperature</h2>
+                <div>
+                  <Thermometer
+                    temp={weather.main.temp}
+                    feelsLike={weather.main.feels_like}
+                    low={dailyData[0]?.min}
+                    high={dailyData[0]?.max}
+                  />
+                </div>
+              </div>
+
+              <div className="bg-white p-4 rounded-xl shadow flex flex-col">
+                <h2 className="font-semibold mb-3">Conditions</h2>
+                <div className="flex-1 flex items-center">
+                  <div className="w-full">
+                    <StatsGrid weather={weather} hourlyData={hourlyData}/>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-4 rounded-xl shadow flex flex-col">
+                <h2 className="font-semibold mb-3">Air quality</h2>
+                <div className="flex-1 flex items-center">
+                  <AQIGauge aqi={aqiData?.[0]?.main?.aqi}/>
+                </div>
+              </div>
+              
+              <div className="bg-white p-4 rounded-xl shadow flex flex-col">
+                <h2 className="font-semibold mb-3">Wind</h2>
+                <div className="flex-1 flex items-center">
+                  <WindCompass data={hourlyData} />
+                </div>
+              </div>
+            </div>
+
+            <div className="relative min-h-[320px]">
+              <div className="absolute inset-0 flex flex-col gap-4">
+                <div className="bg-white p-4 rounded-xl shadow max-h-[45%] overflow-y-auto shrink-0">
+                  <h2 className="font-semibold mb-3">Alerts</h2>
+                  {alerts.length === 0 ? 
+                  <p>No active alerts.</p> :
+                  alerts.map(alert => <AlertCard key={alert.id} alert={alert} />)}
+                </div>
+                <section className="bg-white p-4 rounded-xl shadow flex-1 min-h-0 overflow-y-auto">
+                  <WeatherInsight insights={insights} />
+                </section>
+              </div>
             </div>
           </div>
-
-          <div className="alertsCenter">
-            <div className="bg-white p-4 rounded-xl shadow">
-              {alerts.length === 0 ? 
-              <p>No active alerts.</p> :
-              alerts.map(alert => <AlertCard key={alert.id} alert={alert} />)}
-            </div>
-
-            {weather && (
-              <section className="bg-white p-4 rounded-xl shadow">
-                <WeatherInsight insights={insights} />
-              </section>
-            )}
-          </div>
-        </div>}
-
-        
+        )}
 
         <section id="forecast"></section>
         {weather && <p>3-Hour Forecast</p>}
@@ -273,7 +312,7 @@ function App() {
         {weather && <div className="bg-white p-4 rounded-xl shadow divide-y">
           {dailyData.sort((a, b) => new Date(a.date) - new Date(b.date))
           .slice(0, 5).map((day, index) => (
-            <DayCard key={index} day={day} />
+            <DayCard key={index} day={day} scaleMin={weekMin} scaleMax={weekMax} />
           ))}
         </div>}
 
