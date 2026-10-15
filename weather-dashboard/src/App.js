@@ -56,16 +56,6 @@ function App() {
   const [alerts, setAlerts] = useState([]);
   const [insights, setInsights] = useState([]);
 
-  const headingDate = weather
-    ? new Date(weather.dt * 1000).toLocaleString([], {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-      })
-    : "";
-
   const sunrise = weather?.sys?.sunrise;
   const sunset = weather?.sys?.sunset;
 
@@ -227,20 +217,12 @@ function App() {
 
         <section id="overview"></section>
         {weather && (
-          <div>
-            <div className="mb-4">
-              <h2 className="text-2xl font-semibold">{weather.name}</h2>
-              <p className="text-sm text-gray-500">{headingDate}</p>
-            </div>
-
-            <div className="grid grid-cols-[minmax(0,3fr)_minmax(0,1.15fr)] gap-4 items-stretch">
-              <div className="grid grid-cols-3 gap-4">
-                <div className="bg-white p-4 rounded-xl shadow">
-                  <h2 className="font-semibold mb-3">Current conditions</h2>
-                  <Header weather={weather} hourlyData={hourlyData} />
-                </div>
-                <div className="bg-white p-4 rounded-xl shadow">
-                  <h2 className="font-semibold mb-3">Temperature</h2>
+          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)] gap-4 items-stretch">
+            <Header weather={weather} hourlyData={hourlyData} />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white p-4 rounded-xl shadow flex flex-col">
+                <h2 className="font-semibold mb-3">Temperature</h2>
+                <div>
                   <Thermometer
                     temp={weather.main.temp}
                     feelsLike={weather.main.feels_like}
@@ -248,35 +230,47 @@ function App() {
                     high={dailyData[0]?.max}
                   />
                 </div>
-                <div className="bg-white p-4 rounded-xl shadow">
-                  <h2 className="font-semibold mb-3">Air quality</h2>
-                  <AQIGauge aqi={aqiData?.[0]?.main?.aqi}/>
-                </div>
-                <div>
-                  <h2 className="font-semibold mb-3">Conditions</h2>
-                  <StatsGrid weather={weather} hourlyData={hourlyData}/>
-                </div>
-                <div className="bg-white p-4 rounded-xl shadow">
-                  <h2 className="font-semibold mb-3">Wind</h2>
-                  <WindCompass data={hourlyData}></WindCompass>
+              </div>
+
+              <div className="bg-white p-4 rounded-xl shadow flex flex-col">
+                <h2 className="font-semibold mb-3">Conditions</h2>
+                <div className="flex-1 flex items-center">
+                  <div className="w-full">
+                    <StatsGrid weather={weather} hourlyData={hourlyData}/>
+                  </div>
                 </div>
               </div>
-              <div className="flex flex-col gap-4">
-                <div className="bg-white p-4 rounded-xl shadow">
+
+              <div className="bg-white p-4 rounded-xl shadow flex flex-col">
+                <h2 className="font-semibold mb-3">Air quality</h2>
+                <div className="flex-1 flex items-center">
+                  <AQIGauge aqi={aqiData?.[0]?.main?.aqi}/>
+                </div>
+              </div>
+              
+              <div className="bg-white p-4 rounded-xl shadow flex flex-col">
+                <h2 className="font-semibold mb-3">Wind</h2>
+                <div className="flex-1 flex items-center">
+                  <WindCompass data={hourlyData} />
+                </div>
+              </div>
+            </div>
+
+            <div className="relative min-h-[320px]">
+              <div className="absolute inset-0 flex flex-col gap-4">
+                <div className="bg-white p-4 rounded-xl shadow max-h-[45%] overflow-y-auto shrink-0">
                   <h2 className="font-semibold mb-3">Alerts</h2>
                   {alerts.length === 0 ? 
                   <p>No active alerts.</p> :
                   alerts.map(alert => <AlertCard key={alert.id} alert={alert} />)}
                 </div>
-                <section className="bg-white p-4 rounded-xl shadow">
+                <section className="bg-white p-4 rounded-xl shadow flex-1 min-h-0 overflow-y-auto">
                   <WeatherInsight insights={insights} />
                 </section>
               </div>
             </div>
-        </div>
+          </div>
         )}
-
-        
 
         <section id="forecast"></section>
         {weather && <p>3-Hour Forecast</p>}

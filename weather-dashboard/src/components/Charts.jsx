@@ -181,7 +181,7 @@ function RainChart({ data, type }){
     );
 
     const rainAxisMax = Math.max(3, Math.ceil(maxRain));
-    const isDry = rainChartData.every(item => Number(item.rain) === 0);
+    const isDry = rainChartData.every(item => Number(item.rain) === 0 && item.pop === 0);
 
     return (
         <div>
