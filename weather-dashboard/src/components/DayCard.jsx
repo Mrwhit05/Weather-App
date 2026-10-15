@@ -1,4 +1,4 @@
-function DayCard({ day }) {
+function DayCard({ day, scaleMin, scaleMax }) {
     if (!day) return null;
 
     console.log(day);
@@ -10,9 +10,15 @@ function DayCard({ day }) {
     const iconUrl = `https://openweathermap.org/img/wn/${day.icon}@2x.png`;
 
     
-    const tempDiff = Math.round(day.max) - Math.round(day.min);
-    const left = Math.round(day.min);
-    const width = tempDiff;
+    //const tempDiff = Math.round(day.max) - Math.round(day.min);
+    //const left = Math.round(day.min);
+    //const width = tempDiff;
+
+    const lo = scaleMin ?? day.min;
+    const hi = scaleMax ?? day.max;
+    const span = Math.max(hi - lo, 1);
+    const left = Math.min(Math.max(((day.min - lo) / span) * 100, 0), 100);
+    const width = Math.min(Math.max(((day.max - day.min) / span) * 100, 3), 100 - left);
 
     return (
         <div className="day-card grid grid-cols-4 gap-4">

@@ -198,6 +198,12 @@ function App() {
     }
   }
 
+  const fiveDays = [...dailyData]
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .slice(0, 5);
+  const weekMin = Math.min(...fiveDays.map(d => d.min));
+  const weekMax = Math.max(...fiveDays.map(d => d.max));
+
   return (
     <div className="app">
       <aside className="sidebar">
@@ -306,7 +312,7 @@ function App() {
         {weather && <div className="bg-white p-4 rounded-xl shadow divide-y">
           {dailyData.sort((a, b) => new Date(a.date) - new Date(b.date))
           .slice(0, 5).map((day, index) => (
-            <DayCard key={index} day={day} />
+            <DayCard key={index} day={day} scaleMin={weekMin} scaleMax={weekMax} />
           ))}
         </div>}
 
